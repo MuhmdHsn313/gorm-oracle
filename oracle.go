@@ -75,6 +75,9 @@ func (d Dialector) Initialize(db *gorm.DB) (err error) {
 		db.ConnPool = d.Conn
 	} else {
 		db.ConnPool, err = sql.Open(d.DriverName, d.DSN)
+		if err != nil {
+			return
+		}
 	}
 
 	if err = db.Callback().Create().Replace("gorm:create", Create); err != nil {
@@ -115,9 +118,9 @@ func (d Dialector) RewriteLimit(c clause.Clause, builder clause.Builder) {
 			_, _ = builder.WriteString(strconv.Itoa(offset))
 			_, _ = builder.WriteString(" ROWS")
 		}
-		if limit := limit.Limit; limit > 0 {
+		if limit := limit.Limit; limit != nil && *limit >= 0 {
 			_, _ = builder.WriteString(" FETCH NEXT ")
-			_, _ = builder.WriteString(strconv.Itoa(limit))
+			_, _ = builder.WriteString(strconv.Itoa(*limit))
 			_, _ = builder.WriteString(" ROWS ONLY")
 		}
 	}
@@ -165,9 +168,7 @@ func (d Dialector) Explain(sql string, vars ...interface{}) string {
 }
 
 func (d Dialector) DataTypeOf(field *schema.Field) string {
-	if _, found := field.TagSettings["RESTRICT"]; found {
-		delete(field.TagSettings, "RESTRICT")
-	}
+	delete(field.TagSettings, "RESTRICT")
 
 	var sqlType string
 
@@ -225,8 +226,8 @@ func (d Dialector) DataTypeOf(field *schema.Field) string {
 			panic(fmt.Sprintf("invalid sql type %s (%s) for oracle", field.FieldType.Name(), field.FieldType.String()))
 		}
 
-		notNull, _ := field.TagSettings["NOT NULL"]
-		unique, _ := field.TagSettings["UNIQUE"]
+		notNull := field.TagSettings["NOT NULL"]
+		unique := field.TagSettings["UNIQUE"]
 		additionalType := fmt.Sprintf("%s %s", notNull, unique)
 		if value, ok := field.TagSettings["DEFAULT"]; ok {
 			additionalType = fmt.Sprintf("%s %s %s%s", "DEFAULT", value, additionalType, func() string {
