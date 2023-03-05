@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"reflect"
 
-	"github.com/godoes/gorm-oracle/clauses"
+	"github.com/MuhmdHsn313/gorm-oracle/clauses"
 	"github.com/thoas/go-funk"
 
 	"gorm.io/gorm"
