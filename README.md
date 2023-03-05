@@ -16,7 +16,7 @@ and [sijms/go-ora](https://github.com/sijms/go-ora) (pure go oracle client)，no
 ### How to install 
 
 ```bash
-go get -d github.com/godoes/gorm-oracle
+go get -d github.com/MuhmdHsn313/gorm-oracle
 ```
 
 ### Usage
@@ -25,7 +25,7 @@ go get -d github.com/godoes/gorm-oracle
 package main
 
 import (
-	oracle "github.com/godoes/gorm-oracle"
+	oracle "github.com/MuhmdHsn313/gorm-oracle"
 	"gorm.io/gorm"
 )
 
